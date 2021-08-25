@@ -3,6 +3,7 @@ package proxy
 import (
 	"fmt"
 	"github.com/polivera/proxy-service/src/data"
+	"github.com/polivera/proxy-service/src/data/models"
 	"github.com/polivera/proxy-service/src/utils"
 	"log"
 	"net/http"
@@ -32,7 +33,16 @@ func (prx *proxy) Run() {
 
 // handler Handle incoming request
 func (prx *proxy) handler(w http.ResponseWriter, r *http.Request) {
-	prx.getConfig(r)
+	var (
+		config models.RequestConfig
+		err    error
+	)
+	if config, err = prx.getConfig(r); err != nil {
+		w.WriteHeader(404)
+		w.Write([]byte("Config for request does not exist"))
+	}
+
+	fmt.Println(config)
 	w.Write([]byte("Shit working yo"))
 }
 
@@ -40,12 +50,8 @@ func (prx *proxy) saveRequest(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (prx *proxy) getConfig(r *http.Request) {
-	host, path := utils.GetFullURLFromRequest(r)
-	conf, err := prx.db.GetConfig(host)
+func (prx *proxy) getConfig(r *http.Request) (models.RequestConfig, error) {
+	host, _ := utils.GetFullURLFromRequest(r)
+	return prx.db.GetConfig(host)
 
-	fmt.Println(host)
-	fmt.Println(path)
-	fmt.Println(conf)
-	fmt.Println(err)
 }
