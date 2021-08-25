@@ -4,22 +4,30 @@ import (
 	"errors"
 	"fmt"
 	"github.com/polivera/proxy-service/src"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 )
 
-// GetFullURL Return URL, URI and full URL from a url.URL object
-func GetFullURL(URL *url.URL) (url string, uri string, fullUrl string) {
-	url = fmt.Sprintf("%s://%s", URL.Scheme, URL.Host)
-	if URL.Scheme == "" {
-		url = "http" + url
+// GetFullURLFromRequest GetFullURL Return URL, URI and full URL from the url.URL object
+func GetFullURLFromRequest(r *http.Request) (fullHost string, fullPath string) {
+	urlScheme := r.URL.Scheme
+	if urlScheme == "" {
+		urlScheme = "http"
 	}
-	uri = URL.Path
-	if URL.RawQuery != "" {
-		uri += "?" + URL.RawQuery
+
+	urlHost := r.Host
+	if urlHost == "" {
+		urlHost = r.URL.Host
 	}
-	fullUrl = url + uri
+	fullHost = fmt.Sprintf("%s://%s", urlScheme, urlHost)
+
+	fullPath = r.URL.Path
+	if r.URL.RawQuery != "" {
+		fullPath += "?" + r.URL.RawQuery
+	}
+
 	return
 }
 

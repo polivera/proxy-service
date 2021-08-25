@@ -5,6 +5,10 @@ import (
 	"github.com/polivera/proxy-service/src/data/models"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"time"
 )
 
 type sqliteDriver struct {
@@ -18,7 +22,18 @@ func NewSQLiteDriver(path string) (*sqliteDriver, error) {
 		con *gorm.DB
 	)
 
-	if con, err = gorm.Open(sqlite.Open(path), &gorm.Config{}); err != nil {
+	// Query logger, remove or make it configurable
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold:             time.Second, // Slow SQL threshold
+			LogLevel:                  logger.Info, // Log level
+			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
+			Colorful:                  true,        // Disable color
+		},
+	)
+
+	if con, err = gorm.Open(sqlite.Open(path), &gorm.Config{Logger: newLogger}); err != nil {
 		fmt.Println("Cannot connect to database")
 		return nil, err
 	}
@@ -35,4 +50,11 @@ func (slt *sqliteDriver) Migrate() error {
 		return err
 	}
 	return nil
+}
+
+func (slt *sqliteDriver) GetConfig(host string) (models.RequestConfig, error) {
+	var config models.RequestConfig
+	result := slt.db.First(&config, "source = ?", host)
+	fmt.Println(config)
+	return config, result.Error
 }

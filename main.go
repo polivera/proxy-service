@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/polivera/proxy-service/src/data"
 	"github.com/polivera/proxy-service/src/proxy"
 	"log"
@@ -27,6 +26,4 @@ func main() {
 
 	proxyServer := proxy.GetProxy(proxyHost, store)
 	proxyServer.Run()
-
-	fmt.Println("This is working")
 }
