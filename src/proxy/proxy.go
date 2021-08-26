@@ -33,6 +33,16 @@ func (prx *proxy) Run() {
 
 // handler Handle incoming request
 func (prx *proxy) handler(w http.ResponseWriter, r *http.Request) {
+
+	// Check if cached request exist
+	// if the request exist and has proper status
+	// return the cached request
+
+	// else
+	// proxy the request
+	// store the response IF the response is successful
+	// return proxy request
+
 	var (
 		config models.RequestConfig
 		err    error
