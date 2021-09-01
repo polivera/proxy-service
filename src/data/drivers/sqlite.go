@@ -55,6 +55,5 @@ func (slt *sqliteDriver) Migrate() error {
 func (slt *sqliteDriver) GetConfig(host string) (models.RequestConfig, error) {
 	var config models.RequestConfig
 	result := slt.db.First(&config, "source = ?", host)
-	fmt.Println(config)
 	return config, result.Error
 }
